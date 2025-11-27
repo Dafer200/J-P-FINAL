@@ -1,3 +1,9 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
     font-family: 'Courier New', Courier, monospace;
     background-color: #2c3e50;
@@ -22,3 +28,151 @@ h1 {
     box-shadow: 0 0 10px #97f3b7;
 }
 
+/* Navegación estilo pixel */
+nav {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+nav button {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #1a2531;
+    color: #97f3b7;
+    border: 2px solid #97f3b7;
+    padding: 10px 20px;
+    margin: 0 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+nav button:hover {
+    background-color: #97f3b7;
+    color: #2c3e50;
+    box-shadow: 0 0 10px #97f3b7;
+}
+
+/* Secciones */
+.seccion {
+    display: none;
+    background-color: #1a2531;
+    padding: 20px;
+    border-radius: 8px;
+    border: 2px solid #97f3b7;
+}
+
+/* Formularios */
+.form-container {
+    margin-bottom: 30px;
+    padding: 20px;
+    border: 1px solid #97f3b7;
+    border-radius: 8px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 8px;
+    background-color: #2c3e50;
+    border: 1px solid #97f3b7;
+    border-radius: 4px;
+    color: #97f3b7;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.btn {
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Courier New', Courier, monospace;
+    border: 2px solid #97f3b7;
+}
+
+.btn:hover {
+    background-color: #219a52;
+    box-shadow: 0 0 10px #27ae60;
+}
+
+/* Tablas */
+.tabla-productos {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.tabla-productos th,
+.tabla-productos td {
+    border: 1px solid #97f3b7;
+    padding: 12px;
+    text-align: left;
+}
+
+.tabla-productos th {
+    background-color: #34495e;
+    color: #97f3b7;
+}
+
+.tabla-productos tr:nth-child(even) {
+    background-color: #2c3e50;
+}
+
+/* Productos para clientes */
+.producto-cliente {
+    border: 2px solid #97f3b7;
+    padding: 15px;
+    margin: 10px;
+    border-radius: 8px;
+    display: inline-block;
+    width: calc(33% - 40px);
+    vertical-align: top;
+    background-color: #1a2531;
+}
+
+.producto-cliente h4 {
+    margin-top: 0;
+    color: #97f3b7;
+}
+
+.btn-comprar {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.btn-comprar:hover {
+    background-color: #c0392b;
+    box-shadow: 0 0 10px #e74c3c;
+}
+
+/* Reportes */
+#resultadoReportes {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #2c3e50;
+    border-radius: 8px;
+    border: 1px solid #97f3b7;
+}
+
+.reporte-dia {
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #34495e;
+    border-radius: 5px;
+}
