@@ -84,10 +84,44 @@ function eliminarProducto() {
     $id = $_POST['id'] ?? '';
     
     try {
-        $stmt = $conn->prepare("DELETE FROM productos WHERE id = ?");
+        // VERIFICAR SI EL PRODUCTO TIENE VENTAS REGISTRADAS
+        $stmt = $conn->prepare("SELECT COUNT(*) as total_ventas FROM ventas WHERE producto_id = ?");
         $stmt->execute([$id]);
+        $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        echo json_encode(['success' => true, 'message' => 'Producto eliminado exitosamente']);
+        if ($resultado['total_ventas'] > 0) {
+            // Si tiene ventas, PRESERVAR LA INFORMACIÓN antes de eliminar
+            
+            // 1. Guardar información del producto en las ventas
+            $stmt = $conn->prepare("
+                UPDATE ventas v 
+                JOIN productos p ON v.producto_id = p.id 
+                SET v.producto_nombre = p.nombre, v.precio_unitario = p.precio 
+                WHERE v.producto_id = ? AND v.producto_nombre IS NULL
+            ");
+            $stmt->execute([$id]);
+            
+            // 2. Ahora eliminar el producto (las ventas se mantienen con SET NULL)
+            $stmt = $conn->prepare("DELETE FROM productos WHERE id = ?");
+            $stmt->execute([$id]);
+            
+            echo json_encode([
+                'success' => true, 
+                'message' => 'Producto eliminado. Las ventas se han preservado con la información del producto.',
+                'tipo' => 'eliminado_con_ventas'
+            ]);
+        } else {
+            // Si no tiene ventas, eliminar normalmente
+            $stmt = $conn->prepare("DELETE FROM productos WHERE id = ?");
+            $stmt->execute([$id]);
+            
+            echo json_encode([
+                'success' => true, 
+                'message' => 'Producto eliminado exitosamente',
+                'tipo' => 'eliminado'
+            ]);
+        }
+        
     } catch(PDOException $e) {
         echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
     }

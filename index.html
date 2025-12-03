@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset='utf-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <title>Sistema de Tienda - Pixel Style</title>
+    <title>Tienda de rosa</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <link rel='stylesheet' type='text/css' media='screen' href='css/main.css'>
 </head>
+
 <body>
     <div class="container">
         <header>
-            <h1>🏪 TIENDA DOÑA ROSA</h1>
+            <h1>🏪 Gestión de Inventario y ventas</h1>
             <nav>
                 <button onclick="mostrarSeccion('admin')">🧑‍💼 Administración</button>
                 <button onclick="mostrarSeccion('cliente')">🛒 Vista Cliente</button>
@@ -21,7 +23,7 @@
         <!-- Sección Administrador -->
         <section id="admin" class="seccion">
             <h2>Panel de Administración</h2>
-            
+
             <!-- HU1: Registrar Productos -->
             <div class="form-container">
                 <h3>➕ Registrar Nuevo Producto</h3>
@@ -69,7 +71,7 @@
 
         <!-- Sección Cliente -->
         <section id="cliente" class="seccion">
-            <h2>🛒 Tienda - Vista Cliente</h2>
+            <h2>🛒 Productos</h2>
             <div id="catalogoCliente">
                 <!-- Los productos para clientes se cargan aquí -->
             </div>
@@ -88,4 +90,5 @@
 
     <script src='js/main.js'></script>
 </body>
+
 </html>
