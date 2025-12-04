@@ -1,4 +1,6 @@
 /* Sistema de Tienda - Diseño Moderno */
+const BASE_URL = '/J-P-FINAL - copia/backend/api/'; // ¡RUTA EXACTA!
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log("Sistema de Tienda inicializado - Diseño Moderno");
     cargarProductos();
@@ -67,7 +69,8 @@ function registrarProducto() {
 
     mostrarLoading('formProducto');
 
-    fetch('php/productos.php?action=crear', {
+    // RUTA CORREGIDA
+    fetch(BASE_URL + 'productos.php?action=crear', {
         method: 'POST',
         body: formData
     })
@@ -92,24 +95,27 @@ function registrarProducto() {
 
 // HU3 - Cargar Listado de Productos
 function cargarProductos() {
-    mostrarLoading('tablaProductos');
+    const tabla = document.getElementById('tablaProductos');
 
-    fetch('php/productos.php?action=listar')
-        .then(response => response.json())
-        .then(data => {
-            const tabla = document.getElementById('tablaProductos');
-            tabla.innerHTML = '';
+    // Mostrar estado de carga
+    tabla.innerHTML = `
+        <tr>
+            <td colspan="6" style="text-align: center; padding: 2rem; color: #64748b;">
+                🔄 Cargando productos...
+            </td>
+        </tr>
+    `;
 
-            if (data.success === false) {
-                tabla.innerHTML = `
-                <tr>
-                    <td colspan="6" class="alert alert-error">
-                        ❌ Error: ${data.message}
-                    </td>
-                </tr>
-            `;
-                return;
+    // RUTA CORREGIDA
+    fetch(BASE_URL + 'productos.php?action=listar')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error HTTP: ' + response.status);
             }
+            return response.json();
+        })
+        .then(data => {
+            tabla.innerHTML = '';
 
             if (data.length === 0) {
                 tabla.innerHTML = `
@@ -154,25 +160,22 @@ function cargarProductos() {
         })
         .catch(error => {
             console.error('Error:', error);
-            const tabla = document.getElementById('tablaProductos');
             tabla.innerHTML = `
             <tr>
-                <td colspan="6" class="alert alert-error">
-                    ❌ Error al cargar productos: ${error.message}
+                <td colspan="6" style="text-align: center; padding: 2rem; color: #ef4444;">
+                    ❌ Error: ${error.message}
+                    <br>
+                    <small>Verifica que el servidor esté funcionando</small>
                 </td>
             </tr>
         `;
-        })
-        .finally(() => {
-            ocultarLoading('tablaProductos');
         });
 }
 
 // HU2 - Editar Producto
 function editarProducto(id) {
-    mostrarLoading('tablaProductos');
-
-    fetch(`php/productos.php?action=buscar&id=${id}`)
+    // RUTA CORREGIDA
+    fetch(BASE_URL + `productos.php?action=buscar&id=${id}`)
         .then(response => response.json())
         .then(producto => {
             if (producto.success === false) {
@@ -212,7 +215,8 @@ function editarProducto(id) {
             formData.append('cantidad', cantidadNum);
             formData.append('proveedor', nuevoProveedor);
 
-            fetch('php/productos.php?action=actualizar', {
+            // RUTA CORREGIDA
+            fetch(BASE_URL + 'productos.php?action=actualizar', {
                 method: 'POST',
                 body: formData
             })
@@ -230,9 +234,6 @@ function editarProducto(id) {
         .catch(error => {
             console.error('Error:', error);
             mostrarAlerta('❌ Error al cargar información del producto', 'error');
-        })
-        .finally(() => {
-            ocultarLoading('tablaProductos');
         });
 }
 
@@ -245,7 +246,8 @@ function eliminarProducto(id) {
     const formData = new FormData();
     formData.append('id', id);
 
-    fetch('php/productos.php?action=eliminar', {
+    // RUTA CORREGIDA
+    fetch(BASE_URL + 'productos.php?action=eliminar', {
         method: 'POST',
         body: formData
     })
@@ -270,22 +272,18 @@ function eliminarProducto(id) {
 
 // HU6 - Cargar Catálogo para Clientes
 function cargarCatalogoCliente() {
-    mostrarLoading('catalogoCliente');
+    const catalogo = document.getElementById('catalogoCliente');
 
-    fetch('php/productos.php?action=listar')
+    catalogo.innerHTML = `
+        <div style="text-align: center; padding: 2rem; color: #64748b;">
+            🔄 Cargando catálogo...
+        </div>
+    `;
+
+    // RUTA CORREGIDA
+    fetch(BASE_URL + 'productos.php?action=listar')
         .then(response => response.json())
         .then(data => {
-            const catalogo = document.getElementById('catalogoCliente');
-
-            if (data.success === false) {
-                catalogo.innerHTML = `
-                <div class="alert alert-error">
-                    ❌ Error: ${data.message}
-                </div>
-            `;
-                return;
-            }
-
             if (data.length === 0) {
                 catalogo.innerHTML = `
                 <div style="text-align: center; padding: 3rem; color: #64748b;">
@@ -298,59 +296,76 @@ function cargarCatalogoCliente() {
 
             catalogo.innerHTML = '<h3 style="margin-bottom: 1.5rem;">🛍️ Productos Disponibles</h3>';
 
+            // Crear contenedor grid para productos
+            catalogo.innerHTML += '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">';
+
             data.forEach(producto => {
                 const precio = parseFloat(producto.precio) || 0;
                 const cantidad = parseInt(producto.cantidad) || 0;
                 const disponible = cantidad > 0;
-                const stockBajo = cantidad > 0 && cantidad <= 5;
 
-                const productoHTML = `
-                <div class="producto-cliente">
-                    <h4>${producto.nombre}</h4>
-                    <div class="precio">$${precio.toFixed(2)}</div>
+                catalogo.innerHTML += `
+                <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                    <h4 style="margin-bottom: 0.5rem; color: #1e293b;">${producto.nombre}</h4>
+                    <div style="font-size: 1.5rem; font-weight: bold; color: #059669; margin: 0.5rem 0;">$${precio.toFixed(2)}</div>
                     <p><strong>Stock:</strong> 
-                        <span class="badge ${cantidad > 10 ? 'badge-success' : cantidad > 0 ? 'badge-warning' : 'badge-danger'}">
+                        <span style="
+                            display: inline-block;
+                            padding: 2px 8px;
+                            border-radius: 12px;
+                            font-size: 0.875rem;
+                            background: ${cantidad > 10 ? '#10b981' : cantidad > 0 ? '#f59e0b' : '#ef4444'};
+                            color: white;
+                        ">
                             ${cantidad} unidades
                         </span>
                     </p>
                     <p><strong>Proveedor:</strong> ${producto.proveedor || 'No especificado'}</p>
                     <div style="margin-top: 1.5rem;">
                         ${disponible ?
-                        `<button class="btn" onclick="comprarProducto(${producto.id}, '${producto.nombre.replace(/'/g, "\\'")}', ${precio}, ${cantidad})">
-                                🛒 Comprar
-                            </button>` :
-                        `<button class="btn btn-secondary" disabled>
-                                ❌ Agotado
-                            </button>`
-                    }
-                        ${stockBajo && disponible ?
-                        `<div style="margin-top: 0.5rem; font-size: 0.875rem; color: #f59e0b;">
-                                ⚠️ Stock bajo
-                            </div>` : ''
-                    }
+                        `<button onclick="comprarProducto(${producto.id}, '${producto.nombre.replace(/'/g, "\\'")}', ${precio}, ${cantidad})" style="
+                            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                            color: white;
+                            border: none;
+                            padding: 12px 24px;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-weight: 600;
+                            width: 100%;
+                        ">
+                            🛒 Comprar
+                        </button>` :
+                        `<button style="
+                            background: #94a3b8;
+                            color: white;
+                            border: none;
+                            padding: 12px 24px;
+                            border-radius: 8px;
+                            width: 100%;
+                            cursor: not-allowed;
+                        " disabled>
+                            ❌ Agotado
+                        </button>`}
                     </div>
                 </div>
             `;
-                catalogo.innerHTML += productoHTML;
             });
+
+            catalogo.innerHTML += '</div>';
         })
         .catch(error => {
             console.error('Error:', error);
-            const catalogo = document.getElementById('catalogoCliente');
             catalogo.innerHTML = `
-            <div class="alert alert-error">
+            <div style="background: #fee2e2; color: #991b1b; padding: 1.5rem; border-radius: 8px;">
                 ❌ Error al cargar el catálogo: ${error.message}
             </div>
         `;
-        })
-        .finally(() => {
-            ocultarLoading('catalogoCliente');
         });
 }
 
 // HU7 - Comprar Producto
+// HU7 - Comprar Producto (VERSIÓN CORREGIDA)
 function comprarProducto(id, nombre, precio, stockDisponible) {
-    // Asegurar que los parámetros sean números
     const precioNum = parseFloat(precio);
     const stockNum = parseInt(stockDisponible);
     const maxCantidad = Math.min(stockNum, 50);
@@ -392,16 +407,41 @@ function comprarProducto(id, nombre, precio, stockDisponible) {
         return;
     }
 
+    // Crear FormData CORRECTAMENTE
     const formData = new FormData();
-    formData.append('producto_id', id);
-    formData.append('cantidad_vendida', cantidadNum);
+    formData.append('producto_id', id.toString()); // Asegurar que sea string
+    formData.append('cantidad_vendida', cantidadNum.toString());
 
-    fetch('php/ventas.php?action=crear', {
+    console.log('Enviando venta:', {
+        producto_id: id,
+        cantidad_vendida: cantidadNum,
+        nombre: nombre,
+        precio: precioNum
+    });
+
+    // RUTA CORREGIDA
+    fetch(BASE_URL + 'ventas.php?action=crear', {
         method: 'POST',
-        body: formData
+        body: formData,
+        headers: {
+            // Añadir este header para FormData
+            'Accept': 'application/json'
+        }
     })
-        .then(response => response.json())
+        .then(response => {
+            console.log('Respuesta HTTP:', response.status);
+            return response.text().then(text => {
+                console.log('Respuesta cruda:', text);
+                try {
+                    return JSON.parse(text);
+                } catch (e) {
+                    console.error('Error parseando JSON:', e);
+                    throw new Error('Respuesta no es JSON válido: ' + text.substring(0, 100));
+                }
+            });
+        })
         .then(data => {
+            console.log('Datos procesados:', data);
             if (data.success) {
                 const totalCompra = parseFloat(data.total) || total;
                 mostrarAlerta(
@@ -411,208 +451,198 @@ function comprarProducto(id, nombre, precio, stockDisponible) {
                     `Total: $${totalCompra.toFixed(2)}`,
                     'success'
                 );
+                // Recargar tanto catálogo como productos
                 cargarCatalogoCliente();
+                cargarProductos(); // Para actualizar el inventario
             } else {
                 mostrarAlerta('❌ Error: ' + data.message, 'error');
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            mostrarAlerta('❌ Error al procesar la compra', 'error');
+            console.error('Error completo:', error);
+            mostrarAlerta('❌ Error al procesar la compra: ' + error.message, 'error');
         });
 }
 
-// HU5 - Reportes (VERSIÓN CORREGIDA)
+// HU5 - Reportes
 function generarReporteDiario() {
-    mostrarLoading('resultadoReportes');
+    const resultado = document.getElementById('resultadoReportes');
+    resultado.innerHTML = '<div style="text-align: center; padding: 2rem; color: #64748b;">🔄 Generando reporte diario...</div>';
 
-    // Obtener tanto el resumen como el detalle
-    Promise.all([
-        fetch('php/ventas.php?action=reporte_diario').then(r => r.json()),
-        fetch('php/ventas.php?action=detalle_diario').then(r => r.json())
-    ])
-        .then(([resumen, detalle]) => {
-            const resultado = document.getElementById('resultadoReportes');
+    // RUTA CORREGIDA - solo llamar a reporte_diario
+    fetch(BASE_URL + 'ventas.php?action=reporte_diario')
+        .then(response => {
+            console.log('Respuesta reporte diario:', response);
+            if (!response.ok) {
+                throw new Error('Error HTTP: ' + response.status);
+            }
+            // Primero intentar como texto para debug
+            return response.text();
+        })
+        .then(text => {
+            console.log('Respuesta cruda (primeros 500 chars):', text.substring(0, 500));
 
-            const fecha = resumen.fecha || new Date().toISOString().split('T')[0];
-            const totalVentas = parseInt(resumen.total_ventas) || 0;
-            const ingresos = parseFloat(resumen.ingresos_totales) || 0;
+            try {
+                const data = JSON.parse(text);
+                console.log('JSON parseado:', data);
 
-            let html = `
-            <div class="reporte-dia">
-                <h3>📊 Reporte Diario - ${fecha}</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
-                    <div style="text-align: center; padding: 1rem; background: #f0f9ff; border-radius: 8px;">
-                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">🛍️</div>
-                        <div style="font-size: 1.5rem; font-weight: bold; color: #0369a1;">${totalVentas}</div>
-                        <div style="color: #64748b;">Total Ventas</div>
-                    </div>
-                    <div style="text-align: center; padding: 1rem; background: #f0fdf4; border-radius: 8px;">
-                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">💰</div>
-                        <div style="font-size: 1.5rem; font-weight: bold; color: #059669;">$${ingresos.toFixed(2)}</div>
-                        <div style="color: #64748b;">Ingresos Totales</div>
-                    </div>
-                </div>
-        `;
+                const fecha = data.fecha || new Date().toISOString().split('T')[0];
+                const totalVentas = parseInt(data.total_ventas) || 0;
+                const ingresos = parseFloat(data.ingresos_totales) || 0;
 
-            // Mostrar detalle de ventas
-            if (Array.isArray(detalle) && detalle.length > 0) {
-                html += `
-                <div style="margin-top: 2rem;">
-                    <h4 style="color: #1e293b; margin-bottom: 1rem;">📋 Detalle de Ventas del Día</h4>
-                    <div style="background: white; border-radius: 8px; border: 1px solid #e2e8f0; overflow: hidden;">
-            `;
-
-                detalle.forEach(venta => {
-                    const totalVenta = parseFloat(venta.total_venta) || 0;
-                    const cantidad = parseInt(venta.cantidad_vendida) || 0;
-                    const precioUnitario = parseFloat(venta.precio_unitario) || 0;
-                    const fechaHora = new Date(venta.fecha_venta).toLocaleString();
-
-                    html += `
-                    <div style="padding: 1rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: between; align-items: center;">
-                        <div style="flex: 1;">
-                            <div style="font-weight: bold; color: #1e293b;">${venta.producto_nombre}</div>
-                            <div style="color: #64748b; font-size: 0.875rem;">
-                                ${cantidad} unidades × $${precioUnitario.toFixed(2)} c/u
-                            </div>
-                            <div style="color: #64748b; font-size: 0.75rem;">${fechaHora}</div>
+                let html = `
+                <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+                    <h3 style="color: #1e293b; margin-bottom: 1.5rem;">📊 Reporte Diario - ${fecha}</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                        <div style="text-align: center; padding: 1.5rem; background: #f0f9ff; border-radius: 8px;">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🛍️</div>
+                            <div style="font-size: 1.5rem; font-weight: bold; color: #0369a1;">${totalVentas}</div>
+                            <div style="color: #64748b;">Total Ventas</div>
                         </div>
-                        <div style="font-weight: bold; color: #059669; font-size: 1.125rem;">
-                            $${totalVenta.toFixed(2)}
+                        <div style="text-align: center; padding: 1.5rem; background: #f0fdf4; border-radius: 8px;">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">💰</div>
+                            <div style="font-size: 1.5rem; font-weight: bold; color: #059669;">$${ingresos.toFixed(2)}</div>
+                            <div style="color: #64748b;">Ingresos Totales</div>
                         </div>
                     </div>
                 `;
-                });
 
-                html += `</div></div>`;
-            } else {
-                html += `
-                <div style="text-align: center; padding: 2rem; color: #64748b;">
-                    <p>No hay ventas registradas hoy</p>
+                // Si hay ventas, mostrar mensaje de éxito
+                if (totalVentas > 0) {
+                    html += `
+                        <div style="text-align: center; padding: 1rem; background: #dcfce7; border-radius: 8px; color: #166534;">
+                            ✅ ${totalVentas} ventas registradas hoy por un total de $${ingresos.toFixed(2)}
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div style="text-align: center; padding: 2rem; color: #64748b;">
+                            📭 No hay ventas registradas hoy
+                        </div>
+                    `;
+                }
+
+                html += `</div>`;
+                resultado.innerHTML = html;
+
+            } catch (e) {
+                console.error('Error parseando JSON:', e);
+                resultado.innerHTML = `
+                <div style="background: #fee2e2; color: #991b1b; padding: 1.5rem; border-radius: 8px;">
+                    ❌ Error: El servidor no devolvió JSON válido
+                    <br><small>Respuesta del servidor: ${text.substring(0, 200)}...</small>
                 </div>
-            `;
+                `;
             }
-
-            html += `</div>`;
-            resultado.innerHTML = html;
         })
         .catch(error => {
-            console.error('Error:', error);
-            const resultado = document.getElementById('resultadoReportes');
+            console.error('Error completo:', error);
             resultado.innerHTML = `
-            <div class="alert alert-error">
+            <div style="background: #fee2e2; color: #991b1b; padding: 1.5rem; border-radius: 8px;">
                 ❌ Error al generar el reporte: ${error.message}
             </div>
         `;
-        })
-        .finally(() => {
-            ocultarLoading('resultadoReportes');
         });
 }
 
 function generarReporteSemanal() {
-    mostrarLoading('resultadoReportes');
+    const resultado = document.getElementById('resultadoReportes');
+    resultado.innerHTML = '<div style="text-align: center; padding: 2rem; color: #64748b;">🔄 Generando reporte semanal...</div>';
 
-    // Obtener tanto el resumen como el detalle semanal
-    Promise.all([
-        fetch('php/ventas.php?action=reporte_semanal').then(r => r.json()),
-        fetch('php/ventas.php?action=detalle_semanal').then(r => r.json())
-    ])
-        .then(([resumenSemanal, detalleSemanal]) => {
-            const resultado = document.getElementById('resultadoReportes');
-
-            if (!Array.isArray(resumenSemanal) || !Array.isArray(detalleSemanal)) {
-                resultado.innerHTML = `
-                <div class="alert alert-error">
-                    ❌ Error: Los datos del reporte no son válidos
-                </div>
-            `;
-                return;
+    // RUTA CORREGIDA - solo reporte_semanal
+    fetch(BASE_URL + 'ventas.php?action=reporte_semanal')
+        .then(response => {
+            console.log('Respuesta reporte semanal:', response);
+            if (!response.ok) {
+                throw new Error('Error HTTP: ' + response.status);
             }
+            return response.text();
+        })
+        .then(text => {
+            console.log('Respuesta cruda semanal:', text.substring(0, 500));
 
-            if (resumenSemanal.length === 0) {
-                resultado.innerHTML = `
-                <div style="text-align: center; padding: 2rem; color: #64748b;">
-                    <h3>📭 No hay ventas en la última semana</h3>
-                    <p>Los reportes semanales aparecerán aquí cuando haya ventas registradas</p>
-                </div>
-            `;
-                return;
-            }
+            try {
+                const data = JSON.parse(text);
+                console.log('JSON parseado semanal:', data);
 
-            let html = '<h3>📈 Reporte Semanal</h3>';
-            let totalGeneral = 0;
-            let ventasGenerales = 0;
+                if (!Array.isArray(data) || data.length === 0) {
+                    resultado.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #64748b;">
+                        <h3>📭 No hay ventas en la última semana</h3>
+                        <p>Los reportes aparecerán aquí cuando haya ventas registradas</p>
+                    </div>
+                    `;
+                    return;
+                }
 
-            // Combinar resumen con detalles
-            resumenSemanal.forEach(diaResumen => {
-                const diaDetalle = detalleSemanal.find(d => d.fecha === diaResumen.fecha);
-                const ingresosDia = parseFloat(diaResumen.ingresos_totales) || 0;
-                const ventasDia = parseInt(diaResumen.total_ventas) || 0;
+                let html = '<div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">';
+                html += '<h3 style="color: #1e293b; margin-bottom: 1.5rem;">📈 Reporte Semanal (Últimos 7 días)</h3>';
 
-                totalGeneral += ingresosDia;
-                ventasGenerales += ventasDia;
+                let totalGeneral = 0;
+                let ventasGenerales = 0;
 
-                html += `
-                <div class="reporte-dia">
-                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
-                        <div>
-                            <strong style="color: #1e293b; font-size: 1.125rem;">${diaResumen.fecha}</strong>
-                            <div style="margin-top: 0.5rem;">
-                                <span class="badge badge-success" style="margin-right: 0.5rem;">${ventasDia} ventas</span>
-                                <strong style="color: #059669; font-size: 1.25rem;">$${ingresosDia.toFixed(2)}</strong>
+                data.forEach(dia => {
+                    const ingresosDia = parseFloat(dia.ingresos_totales) || 0;
+                    const ventasDia = parseInt(dia.total_ventas) || 0;
+
+                    totalGeneral += ingresosDia;
+                    ventasGenerales += ventasDia;
+
+                    html += `
+                    <div style="margin-bottom: 1rem; padding: 1rem; background: #f8fafc; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong style="color: #1e293b;">${dia.fecha}</strong>
+                                <div style="margin-top: 0.5rem;">
+                                    <span style="background: #10b981; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.875rem;">
+                                        ${ventasDia} ventas
+                                    </span>
+                                </div>
+                            </div>
+                            <div style="font-size: 1.25rem; font-weight: bold; color: #059669;">
+                                $${ingresosDia.toFixed(2)}
                             </div>
                         </div>
                     </div>
-            `;
+                    `;
+                });
 
-                // Mostrar detalles del día si existen
-                if (diaDetalle && diaDetalle.detalle_ventas) {
-                    const ventasArray = diaDetalle.detalle_ventas.split(' | ');
-                    html += `<div style="background: #f8fafc; padding: 1rem; border-radius: 6px; margin-top: 0.5rem;">`;
-                    html += `<div style="font-size: 0.875rem; color: #475569; margin-bottom: 0.5rem;"><strong>Productos vendidos:</strong></div>`;
-
-                    ventasArray.forEach(venta => {
-                        html += `<div style="font-size: 0.875rem; color: #64748b; padding: 0.25rem 0;">• ${venta}</div>`;
-                    });
-
-                    html += `</div>`;
-                }
-
-                html += `</div>`;
-            });
-
-            // Resumen general
-            html += `
-            <div style="margin-top: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">
-                <h4 style="margin-bottom: 1rem; color: white;">📋 Resumen Semanal</h4>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <div>
-                        <div style="font-size: 2rem; font-weight: bold;">${ventasGenerales}</div>
-                        <div>Total Ventas</div>
+                // Resumen general
+                html += `
+                    <div style="margin-top: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">
+                        <h4 style="margin-bottom: 1rem; color: white;">📋 Resumen Semanal</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 2rem; font-weight: bold;">${ventasGenerales}</div>
+                                <div>Total Ventas</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 2rem; font-weight: bold;">$${totalGeneral.toFixed(2)}</div>
+                                <div>Ingresos Totales</div>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <div style="font-size: 2rem; font-weight: bold;">$${totalGeneral.toFixed(2)}</div>
-                        <div>Ingresos Totales</div>
-                    </div>
+                </div>`;
+
+                resultado.innerHTML = html;
+
+            } catch (e) {
+                console.error('Error parseando JSON semanal:', e);
+                resultado.innerHTML = `
+                <div style="background: #fee2e2; color: #991b1b; padding: 1.5rem; border-radius: 8px;">
+                    ❌ Error: El servidor no devolvió JSON válido para el reporte semanal
+                    <br><small>Respuesta: ${text.substring(0, 200)}...</small>
                 </div>
-            </div>
-        `;
-
-            resultado.innerHTML = html;
+                `;
+            }
         })
         .catch(error => {
-            console.error('Error:', error);
-            const resultado = document.getElementById('resultadoReportes');
+            console.error('Error completo semanal:', error);
             resultado.innerHTML = `
-            <div class="alert alert-error">
+            <div style="background: #fee2e2; color: #991b1b; padding: 1.5rem; border-radius: 8px;">
                 ❌ Error al generar el reporte semanal: ${error.message}
             </div>
         `;
-        })
-        .finally(() => {
-            ocultarLoading('resultadoReportes');
         });
 }
 
@@ -637,6 +667,9 @@ function mostrarAlerta(mensaje, tipo = 'info') {
         border-radius: 12px;
         padding: 1rem 1.5rem;
         animation: slideIn 0.3s ease-out;
+        background: ${tipo === 'success' ? '#10b981' : tipo === 'error' ? '#ef4444' : '#3b82f6'};
+        color: white;
+        font-weight: 600;
     `;
 
     alerta.innerHTML = mensaje.split('\n').join('<br>');

@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset='utf-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <title>Tienda de rosa</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link rel='stylesheet' type='text/css' media='screen' href='css/main.css'>
+    <!-- CSS -->
+    <link rel="stylesheet" href="../frontend/assets/css/main.css">
 </head>
-
 <body>
     <div class="container">
         <header>
@@ -20,13 +19,14 @@
             </nav>
         </header>
 
-        <!-- Sección Administrador -->
+         <!-- Sección Administrador -->
         <section id="admin" class="seccion">
             <h2>Panel de Administración</h2>
 
             <!-- HU1: Registrar Productos -->
             <div class="form-container">
                 <h3>➕ Registrar Nuevo Producto</h3>
+                <br>
                 <form id="formProducto">
                     <div class="form-group">
                         <label>Nombre del Producto:</label>
@@ -64,6 +64,11 @@
                     </thead>
                     <tbody id="tablaProductos">
                         <!-- Los productos se cargan dinámicamente aquí -->
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 20px; color: #666;">
+                                Cargando productos...
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -72,23 +77,30 @@
         <!-- Sección Cliente -->
         <section id="cliente" class="seccion">
             <h2>🛒 Productos</h2>
-            <div id="catalogoCliente">
-                <!-- Los productos para clientes se cargan aquí -->
+            <div id="catalogoCliente" style="padding: 20px; text-align: center; color: #666;">
+                Cargando catálogo...
             </div>
         </section>
 
         <!-- Sección Reportes -->
         <section id="reportes" class="seccion">
             <h2>📊 Reportes de Ventas</h2>
-            <div id="contenedorReportes">
+            <div id="contenedorReportes" style="background: #f8fafc; padding: 20px; border-radius: 8px;">
                 <button class="btn" onclick="generarReporteDiario()">📅 Reporte Diario</button>
                 <button class="btn" onclick="generarReporteSemanal()">📆 Reporte Semanal</button>
-                <div id="resultadoReportes"></div>
+                <div id="resultadoReportes" style="margin-top: 20px; padding: 15px; background: white; border-radius: 6px;">
+                    Los reportes aparecerán aquí
+                </div>
             </div>
         </section>
     </div>
+        
+    </div>
 
-    <script src='js/main.js'></script>
+    <!-- JavaScript CORREGIDO -->
+    <script src="../frontend/assets/js/main.js"></script>
 </body>
-
 </html>
+
+
+
